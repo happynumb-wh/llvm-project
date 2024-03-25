@@ -31,6 +31,7 @@ namespace RISCVISD {
 enum NodeType : unsigned {
   FIRST_NUMBER = ISD::BUILTIN_OP_END,
   RET_GLUE,
+  URET_GLUE,
   SRET_GLUE,
   MRET_GLUE,
   CALL,

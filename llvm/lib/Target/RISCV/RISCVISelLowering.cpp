@@ -18722,8 +18722,10 @@ RISCVTargetLowering::LowerReturn(SDValue Chain, CallingConv::ID CallConv,
 
     if (Kind == "supervisor")
       RetOpc = RISCVISD::SRET_GLUE;
-    else
+    else if (Kind == "machine")
       RetOpc = RISCVISD::MRET_GLUE;
+    else 
+      RetOpc = RISCVISD::URET_GLUE;
   }
 
   return DAG.getNode(RetOpc, DL, MVT::Other, RetOps);
@@ -18794,6 +18796,7 @@ const char *RISCVTargetLowering::getTargetNodeName(unsigned Opcode) const {
   case RISCVISD::FIRST_NUMBER:
     break;
   NODE_NAME_CASE(RET_GLUE)
+  NODE_NAME_CASE(URET_GLUE)
   NODE_NAME_CASE(SRET_GLUE)
   NODE_NAME_CASE(MRET_GLUE)
   NODE_NAME_CASE(CALL)
