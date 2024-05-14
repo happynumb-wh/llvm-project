@@ -1,12 +1,45 @@
 #!/bin/bash
 # Install path
-RISCV_DIR=/home/wanghan/.local/bin/riscv64-unknown-linux-gnu/ 
-INSTALL_DIR=/home/wanghan/.local/bin/riscv64-unknown-linux-gnu/
-TOOLCHAIN_DIR=/data/wanghan/riscv-gnu-toolchain
+RISCV_DIR=$1
+TOOLCHAIN_DIR=$2
+INSTALL_DIR=$3
+BUILD_DIR=$4
+
+if [ -z "$RISCV_DIR" ]; then
+    echo -e "\033[31m[ERROR]: RISCV_DIR is NULL, exit"
+    exit 1
+fi
+
+if [ ! -d "$RISCV_DIR" ]; then
+    echo -e "\033[31mError: Directory $RISCV_DIR does not exist."
+    exit 2
+fi
+
+if [ -z "$TOOLCHAIN_DIR" ]; then
+    echo -e "\033[31m[ERROR]: TOOLCHAIN_DIR is NULL, exit"
+    exit 1
+fi
+
+if [ ! -d "$TOOLCHAIN_DIR" ]; then
+    echo -e "\033[31mError: Directory $TOOLCHAIN_DIR does not exist."
+    exit 2
+fi
+
+if [ -z "$INSTALL_DIR" ]; then
+    echo -e "\033[31m[ERROR]: INSTALL_DIR is NULL, exit"
+    exit 1
+fi
+
+if [ -z "$BUILD_DIR" ]; then
+    echo -e "\033[31m[ERROR]: BUILD_DIR is NULL, exit"
+    exit 1
+fi
+
+# TOOLCHAIN_DIR=/data/wanghan/riscv-gnu-toolchain
 
 LLVM_DIR=$PWD
 
-BUILD_DIR=$PWD/build
+mkdir -p ${BUILD_DIR}
 
 # Sysroot
 SYSROOT=${RISCV_DIR}/sysroot
@@ -38,7 +71,7 @@ cd ${BUILD_DIR} && \
     -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}\
     -DCMAKE_BUILD_TYPE=Debug \
     -DLLVM_TARGETS_TO_BUILD="RISCV" \
-    -DLLVM_ENABLE_PROJECTS="clang;lld;clang-tools-extra" \
+    -DLLVM_ENABLE_PROJECTS="clang" \
     -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi;libunwind" \
     -DLLVM_DEFAULT_TARGET_TRIPLE="${LINUX_TUPLE}" \
     -DDEFAULT_SYSROOT="../sysroot" \
@@ -52,7 +85,7 @@ cd ${BUILD_DIR} && \
 eval "$command"
 
 make -C ${BUILD_DIR} -j`nproc`
-# make -C ${BUILD_DIR} install
-# cp ${BUILD_DIR}/lib/riscv${XLEN}-unknown-linux-gnu/libc++* ${SYSROOT}/lib
-# cp ${BUILD_DIR}/lib/LLVMgold.so  ${INSTALL_DIR}/lib
-# cd ${INSTALL_DIR}/bin && ln -s -f clang ${LINUX_TUPLE}-clang && ln -s -f clang++ ${LINUX_TUPLE}-clang++
+make -C ${BUILD_DIR} install
+cp ${BUILD_DIR}/lib/riscv${XLEN}-unknown-linux-gnu/libc++* ${SYSROOT}/lib
+cp ${BUILD_DIR}/lib/LLVMgold.so  ${INSTALL_DIR}/lib
+cd ${INSTALL_DIR}/bin && ln -s -f clang ${LINUX_TUPLE}-clang && ln -s -f clang++ ${LINUX_TUPLE}-clang++
